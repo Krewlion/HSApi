@@ -9,13 +9,14 @@ namespace HSApi.Negocio
 {
     public class Reserva : AbstractNegocio
     {
-        public List<DTOs.Quarto> PesquisarQuartosSemReserva(string datas, int cdcidade, int cdbairro)
+        public List<DTOs.Quarto> PesquisarQuartosSemReserva(string datas, int cdcidade, int cdbairro, string nomehotel, string hospedes)
         {
             try
             {
                 var datasSplit = datas.Split(",");
                 DateTime inicial = DateTime.Parse(datasSplit[0].Substring(4,11));
                 DateTime final = DateTime.Parse(datasSplit[1].Substring(4, 11));
+                int qtdhospede = Int32.Parse(hospedes);
                 using (HSContext hs = new HSContext())
                 {
 
@@ -24,10 +25,15 @@ namespace HSApi.Negocio
                         .Include(x => x.CdBairroNavigation)
                         .ThenInclude(x => x.CdCidadeNavigation)
                         .ThenInclude(x => x.CdUfNavigation)
-                        .Where(x => x.CdBairroNavigation.CdCidade == cdcidade && cdbairro != 0 ? x.CdBairro == cdbairro : x.CdBairroNavigation.CdCidade == cdcidade)
+                        .Where(x => x.CdBairroNavigation.CdCidade == cdcidade && cdbairro != 0 ? x.CdBairro == cdbairro : x.CdBairroNavigation.CdCidade == cdcidade )
                         .Select(x => x.NoLogradouroCep).ToList();
 
-                    return
+                    if (nomehotel == null)
+                    {
+                        nomehotel = "";
+                    }
+
+                    var retorno =
                         (
                             from quarto in hs.Tbquarto.Include(x => x.IdempresaNavigation)
                             join reserva in hs.Tbreserva on quarto.Idquarto equals reserva.Idquarto into LeftJoin
@@ -40,6 +46,7 @@ namespace HSApi.Negocio
                             )
                             select new DTOs.Quarto()
                             {
+                                hotel = quarto.IdempresaNavigation.Nomeempresa,
                                 nomeempresa =
                                 quarto.IdempresaNavigation.Nomeempresa + " - " + hs.Logradouros
                                 .Include(x => x.CdBairroNavigation)
@@ -47,6 +54,7 @@ namespace HSApi.Negocio
                                 .First(x => x.NoLogradouroCep == quarto.IdempresaNavigation.Cep).CdBairroNavigation.DsBairroNome.ToUpper(),
                                 idquarto = quarto.Idquarto,
                                 valor = quarto.Valor.Value.ToString(),
+                                andar = quarto.Andar,
                                 quarto = quarto.Quarto,
                                 varanda = quarto.Varanda.Value,
                                 arcondicionado = quarto.Arcondicionado.Value,
@@ -54,16 +62,31 @@ namespace HSApi.Negocio
                                 camasolteiro = quarto.Camasolteiro.Value,
                                 cep = quarto.IdempresaNavigation.Cep,
                                 status = quarto.Status.Value,
+                                ventilador = quarto.Ventilador,
+                                banheiroprivativo = quarto.Banheiroprivativo,
                                 endereco = hs.Logradouros
                                 .Include(x => x.CdBairroNavigation)
                                 .ThenInclude(x => x.CdCidadeNavigation)
                                 .First(x => x.NoLogradouroCep == quarto.IdempresaNavigation.Cep).DsLogradouroNome + " n° " + quarto.IdempresaNavigation.Numero + " - Complemento " + quarto.IdempresaNavigation.Complemente,
                                 imagens = hs.Tbquartofoto.Where(x=>x.Idquarto == quarto.Idquarto).Select(x=>x.Imagem).ToList(),
-                                foto = hs.Tbquartofoto.FirstOrDefault(x => x.Idquarto == quarto.Idquarto) == null ? "" : hs.Tbquartofoto.First(x => x.Idquarto == quarto.Idquarto).Imagem
+                                foto = hs.Tbquartofoto.FirstOrDefault(x => x.Idquarto == quarto.Idquarto) == null ? "" : hs.Tbquartofoto.First(x => x.Idquarto == quarto.Idquarto).Imagem,
+                                checkin = quarto.IdempresaNavigation.Horachekin,
+                                checkout = quarto.IdempresaNavigation.Horacheckout,
+                                qtdhospedes = quarto.Totalpessoas
                             }
                         )
-                        .Distinct().Where(x=>ceps.Contains(x.cep)).ToList();
+                    .Distinct().Where(x=>ceps.Contains(x.cep)).ToList();
 
+                    if (nomehotel == "")
+                    {
+                        return retorno.Where(x=>x.qtdhospedes == qtdhospede).ToList();
+                    }
+                    else
+                    {
+                        nomehotel = nomehotel.ToLower();
+                        retorno = retorno.Where(x => x.hotel.ToLower().Contains(nomehotel) && x.qtdhospedes == qtdhospede).ToList();
+                        return retorno;
+                    }
                 }
             }
             catch (Exception ex)

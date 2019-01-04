@@ -17,9 +17,9 @@ namespace HSApi.Controllers
         public TipoPagamento tipoPagamentoNegocio = new TipoPagamento();
 
         [HttpGet]
-        public IActionResult PesquisarQuartosParaReservaPelaData(string datas, int cdcidade, int cdbairro)
+        public IActionResult PesquisarQuartosParaReservaPelaData(string datas, int cdcidade, int cdbairro, string hotel, string hospedes)
         {
-            var retorno = reservaNegocio.PesquisarQuartosSemReserva(datas, cdcidade, cdbairro);
+            var retorno = reservaNegocio.PesquisarQuartosSemReserva(datas, cdcidade, cdbairro, hotel, hospedes);
 
             if (reservaNegocio.erros.Count > 0)
             {

@@ -94,15 +94,21 @@ namespace HSApi.EF
 
             modelBuilder.Entity<Logradouros>(entity =>
             {
-                entity.HasKey(e => e.CdLogradouro);
+                entity.HasKey(e => e.NoLogradouroCep);
 
                 entity.ToTable("LOGRADOUROS");
 
-                entity.Property(e => e.CdLogradouro)
-                    .HasColumnName("CD_LOGRADOURO")
+                entity.Property(e => e.NoLogradouroCep)
+                    .HasColumnName("NO_LOGRADOURO_CEP")
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
                     .ValueGeneratedNever();
 
                 entity.Property(e => e.CdBairro).HasColumnName("CD_BAIRRO");
+
+                entity.Property(e => e.CdLogradouro)
+                    .HasColumnName("CD_LOGRADOURO")
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.CdTipoLogradouros).HasColumnName("CD_TIPO_LOGRADOUROS");
 
@@ -110,12 +116,6 @@ namespace HSApi.EF
                     .IsRequired()
                     .HasColumnName("DS_LOGRADOURO_NOME")
                     .HasMaxLength(400)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.NoLogradouroCep)
-                    .IsRequired()
-                    .HasColumnName("NO_LOGRADOURO_CEP")
-                    .HasMaxLength(8)
                     .IsUnicode(false);
 
                 entity.HasOne(d => d.CdBairroNavigation)
@@ -195,16 +195,19 @@ namespace HSApi.EF
                 entity.Property(e => e.Idempresa).HasColumnName("IDEMPRESA");
 
                 entity.Property(e => e.Cep)
+                    .IsRequired()
                     .HasColumnName("CEP")
                     .HasMaxLength(8)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Cnpj)
+                    .IsRequired()
                     .HasColumnName("CNPJ")
                     .HasMaxLength(14)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Complemente)
+                    .IsRequired()
                     .HasColumnName("COMPLEMENTE")
                     .HasMaxLength(100)
                     .IsUnicode(false);
@@ -213,20 +216,41 @@ namespace HSApi.EF
                     .HasColumnName("DATACADASTRO")
                     .HasColumnType("date");
 
+                entity.Property(e => e.Horacheckout)
+                    .IsRequired()
+                    .HasColumnName("HORACHECKOUT")
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Horachekin)
+                    .IsRequired()
+                    .HasColumnName("HORACHEKIN")
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.Nomeempresa)
+                    .IsRequired()
                     .HasColumnName("NOMEEMPRESA")
                     .HasMaxLength(300)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Numero)
+                    .IsRequired()
                     .HasColumnName("NUMERO")
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Razaosocial)
+                    .IsRequired()
                     .HasColumnName("RAZAOSOCIAL")
                     .HasMaxLength(300)
                     .IsUnicode(false);
+
+                entity.HasOne(d => d.CepNavigation)
+                    .WithMany(p => p.Tbempresa)
+                    .HasForeignKey(d => d.Cep)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TBEMPRESA_LOGRADOUROS");
             });
 
             modelBuilder.Entity<Tbpagamento>(entity =>
@@ -323,6 +347,8 @@ namespace HSApi.EF
 
                 entity.Property(e => e.Arcondicionado).HasColumnName("ARCONDICIONADO");
 
+                entity.Property(e => e.Banheiroprivativo).HasColumnName("BANHEIROPRIVATIVO");
+
                 entity.Property(e => e.Camacasal).HasColumnName("CAMACASAL");
 
                 entity.Property(e => e.Camasolteiro).HasColumnName("CAMASOLTEIRO");
@@ -336,9 +362,13 @@ namespace HSApi.EF
 
                 entity.Property(e => e.Status).HasColumnName("STATUS");
 
+                entity.Property(e => e.Totalpessoas).HasColumnName("TOTALPESSOAS");
+
                 entity.Property(e => e.Valor).HasColumnName("VALOR");
 
                 entity.Property(e => e.Varanda).HasColumnName("VARANDA");
+
+                entity.Property(e => e.Ventilador).HasColumnName("VENTILADOR");
 
                 entity.HasOne(d => d.IdempresaNavigation)
                     .WithMany(p => p.Tbquarto)

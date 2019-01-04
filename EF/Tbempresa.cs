@@ -17,8 +17,11 @@ namespace HSApi.EF
         public string Cep { get; set; }
         public string Complemente { get; set; }
         public string Numero { get; set; }
-        public DateTime? Datacadastro { get; set; }
+        public DateTime Datacadastro { get; set; }
+        public string Horachekin { get; set; }
+        public string Horacheckout { get; set; }
 
+        public Logradouros CepNavigation { get; set; }
         public ICollection<Tbquarto> Tbquarto { get; set; }
     }
 }

@@ -20,6 +20,9 @@ namespace HSApi.EF
         public bool? Varanda { get; set; }
         public int? Status { get; set; }
         public string Andar { get; set; }
+        public int Totalpessoas { get; set; }
+        public bool Banheiroprivativo { get; set; }
+        public bool Ventilador { get; set; }
 
         public Tbempresa IdempresaNavigation { get; set; }
         public Tbstatus StatusNavigation { get; set; }
