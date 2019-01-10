@@ -31,5 +31,20 @@ namespace HSApi.Controllers
                 return Ok(retorno);
             }
         }
+
+        [HttpGet]
+        public IActionResult ListarCartoesUsuario(string idusuario)
+        {
+            var retorno = UsuarioNegocio.ListarCartoesUsuario(idusuario);
+
+            if (UsuarioNegocio.erros.Count > 0)
+            {
+                return Ok(new { erros = UsuarioNegocio.erros });
+            }
+            else
+            {
+                return Ok(retorno);
+            }
+        }
     }
 }

@@ -35,5 +35,35 @@ namespace HSApi.Negocio
             }
             return true;
         }
+
+        public List<DTOs.CartaoUsuario> ListarCartoesUsuario(string idusuariocript)
+        {
+            try
+            {
+                using (HSContext hs = new HSContext())
+                {
+
+                    var idusuario = this.Decrypt(idusuariocript);
+                    return hs.Tbusuariocartao.Where(x => x.Idusuario == Int32.Parse(idusuario))
+                        .Select(x => new DTOs.CartaoUsuario()
+                        {
+                            cvv = x.Cvv,
+                            datavencimento = x.Datavencimento.ToString(),
+                            idusuario = x.Idusuario,
+                            idusuariocartao = x.Idusuariocartao,
+                            nomecartao = x.Nomecartao,
+                            numerocartao = x.Numerocartao
+                        }
+                    ).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                erros.Add("O quarto não foi adicionado.");
+                erros.Add(ex.Message);
+                return null;
+            }
+        }
+
     }
 }

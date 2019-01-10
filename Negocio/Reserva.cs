@@ -149,19 +149,6 @@ namespace HSApi.Negocio
                     }
 
                     return ResultadoFinal;
-                    //if (nomehotel == "")
-                    //{
-                    //    return agrupados
-                    //        .Where(tipo => tipo.tipoquartos
-                    //            .Where(qua => qua.quartos
-                    //                .Where(final => final.qtdhospedes == qtdhospede))).ToList();
-                    //}
-                    //else
-                    //{
-                    //    nomehotel = nomehotel.ToLower();
-                    //    retorno = retorno.Where(x => x.hotel.ToLower().Contains(nomehotel) && x.qtdhospedes == qtdhospede).ToList();
-                    //    return retorno;
-                    //}
                 }
             }
             catch (Exception ex)
