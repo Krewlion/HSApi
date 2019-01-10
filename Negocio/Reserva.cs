@@ -9,8 +9,10 @@ namespace HSApi.Negocio
 {
     public class Reserva : AbstractNegocio
     {
-        public List<DTOs.Quarto> PesquisarQuartosSemReserva(string datas, int cdcidade, int cdbairro, string nomehotel, string hospedes)
+        public List<DTOs.Empresa_Quartos> PesquisarQuartosSemReserva(string datas, int cdcidade, int cdbairro, string nomehotel, string hospedes)
         {
+
+            List<DTOs.Empresa_Quartos> ResultadoFinal = new List<DTOs.Empresa_Quartos>();
             try
             {
                 var datasSplit = datas.Split(",");
@@ -55,6 +57,7 @@ namespace HSApi.Negocio
                                 idquarto = quarto.Idquarto,
                                 valor = quarto.IdtipoquartoNavigation.Valor.ToString(),
                                 andar = quarto.Andar,
+                                idtipoquarto = quarto.Idtipoquarto,
                                 quarto = quarto.Quarto,
                                 varanda = quarto.IdtipoquartoNavigation.Varanda,
                                 arcondicionado = quarto.IdtipoquartoNavigation.Arcondicionado,
@@ -74,21 +77,91 @@ namespace HSApi.Negocio
                                 foto = hs.Tbquartofoto.FirstOrDefault(x => x.Idquarto == quarto.Idquarto) == null ? "" : hs.Tbquartofoto.First(x => x.Idquarto == quarto.Idquarto).Imagem,
                                 checkin = quarto.IdtipoquartoNavigation.IdempresaNavigation.Horachekin,
                                 checkout = quarto.IdtipoquartoNavigation.IdempresaNavigation.Horacheckout,
-                                qtdhospedes = quarto.IdtipoquartoNavigation.Totalpessoas
+                                qtdhospedes = quarto.IdtipoquartoNavigation.Totalpessoas,
+                                banheira = quarto.IdtipoquartoNavigation.Banheira,
+                                vistamar = quarto.IdtipoquartoNavigation.Vistamar,
+                                vistapordosol = quarto.IdtipoquartoNavigation.Vistapordosol
                             }
                         )
-                    .Distinct().Where(x=>ceps.Contains(x.cep)).ToList();
+                    .Distinct().Where(x=>ceps.Contains(x.cep) && x.qtdhospedes == qtdhospede).ToList();
 
                     if (nomehotel == "")
                     {
-                        return retorno.Where(x=>x.qtdhospedes == qtdhospede).ToList();
+                        ResultadoFinal = (
+                            from agru in retorno
+                            group agru by new { agru.idempresa, agru.nomeempresa } into agrup
+                            select new DTOs.Empresa_Quartos()
+                            {
+                                idempresa = agrup.Key.idempresa,
+                                nomeempresa = agrup.Key.nomeempresa,
+                                tipoquartos = retorno
+                                .Where(x => x.idempresa == agrup.Key.idempresa)
+                                .Select(x => new DTOs.TipoQuarto()
+                                {
+                                    tipoquarto = x.tipoquarto,
+                                    idtipoquarto = x.idtipoquarto,
+                                    valor = x.valor.ToString(),
+                                    varanda = x.varanda,
+                                    arcondicionado = x.arcondicionado,
+                                    camacasal = x.camacasal,
+                                    camasolteiro = x.camasolteiro,
+                                    ventilador = x.ventilador,
+                                    banheiroprivativo = x.banheira,
+                                    qtdhospedes = x.qtdhospedes,
+                                    banheira = x.banheira,
+                                    vistamar = x.vistamar,
+                                    vistapordosol = x.vistapordosol,
+                                    quartos = retorno.Where(ret => ret.idtipoquarto == x.idtipoquarto && ret.qtdhospedes == qtdhospede).ToList()
+                                }).Distinct().ToList()
+                            }
+                        ).ToList();
                     }
                     else
                     {
-                        nomehotel = nomehotel.ToLower();
-                        retorno = retorno.Where(x => x.hotel.ToLower().Contains(nomehotel) && x.qtdhospedes == qtdhospede).ToList();
-                        return retorno;
+                        ResultadoFinal = (
+                            from agru in retorno
+                            group agru by new { agru.idempresa, agru.nomeempresa } into agrup
+                            select new DTOs.Empresa_Quartos()
+                            {
+                                idempresa = agrup.Key.idempresa,
+                                nomeempresa = agrup.Key.nomeempresa,
+                                tipoquartos = retorno
+                                .Where(x => x.idempresa == agrup.Key.idempresa)
+                                .Select(x => new DTOs.TipoQuarto()
+                                {
+                                    tipoquarto = x.tipoquarto,
+                                    idtipoquarto = x.idtipoquarto,
+                                    valor = x.valor.ToString(),
+                                    varanda = x.varanda,
+                                    arcondicionado = x.arcondicionado,
+                                    camacasal = x.camacasal,
+                                    camasolteiro = x.camasolteiro,
+                                    ventilador = x.ventilador,
+                                    banheiroprivativo = x.banheira,
+                                    qtdhospedes = x.qtdhospedes,
+                                    banheira = x.banheira,
+                                    vistamar = x.vistamar,
+                                    vistapordosol = x.vistapordosol,
+                                    quartos = retorno.Where(ret => ret.idtipoquarto == x.idtipoquarto && ret.qtdhospedes == qtdhospede).ToList()
+                                }).Distinct().ToList()
+                            }
+                        ).ToList();
                     }
+
+                    return ResultadoFinal;
+                    //if (nomehotel == "")
+                    //{
+                    //    return agrupados
+                    //        .Where(tipo => tipo.tipoquartos
+                    //            .Where(qua => qua.quartos
+                    //                .Where(final => final.qtdhospedes == qtdhospede))).ToList();
+                    //}
+                    //else
+                    //{
+                    //    nomehotel = nomehotel.ToLower();
+                    //    retorno = retorno.Where(x => x.hotel.ToLower().Contains(nomehotel) && x.qtdhospedes == qtdhospede).ToList();
+                    //    return retorno;
+                    //}
                 }
             }
             catch (Exception ex)
@@ -106,6 +179,28 @@ namespace HSApi.Negocio
                 var idcliente = this.Decrypt(reserva.idusuariocripto);
                 using (HSContext hs = new HSContext())
                 {
+
+                    var podeCadastrar = hs.Tbreserva
+                        .Where
+                        (
+                            x =>
+                            (
+                                (x.Dataentrada >= DateTime.Parse(reserva.dataentrada) && x.Datasaida <= DateTime.Parse(reserva.dataentrada))
+                                    ||
+                                (x.Datasaida <= DateTime.Parse(reserva.datasaida))
+                            )
+                                &&
+                            (x.Idquarto == reserva.idquarto)
+
+                        ).ToList();
+
+                    if (podeCadastrar.Count() > 0)
+                    {
+                        this.erros.Add("Infelizmente esse quarto já foi reservado.");
+                        this.erros.Add("Escolha outro quarto.");
+                        return false;
+                    }
+
                     Tbreserva reservaAdd = new Tbreserva();
 
                     reservaAdd.Idquarto = reserva.idquarto;
