@@ -18,6 +18,7 @@ namespace HSApi.EF
         public virtual DbSet<Bairros> Bairros { get; set; }
         public virtual DbSet<Cidades> Cidades { get; set; }
         public virtual DbSet<Logradouros> Logradouros { get; set; }
+        public virtual DbSet<Tbcartaocliente> Tbcartaocliente { get; set; }
         public virtual DbSet<Tbcliente> Tbcliente { get; set; }
         public virtual DbSet<Tbempresa> Tbempresa { get; set; }
         public virtual DbSet<Tbpagamento> Tbpagamento { get; set; }
@@ -28,7 +29,10 @@ namespace HSApi.EF
         public virtual DbSet<Tbreserva> Tbreserva { get; set; }
         public virtual DbSet<Tbstatus> Tbstatus { get; set; }
         public virtual DbSet<Tbtipopagamento> Tbtipopagamento { get; set; }
+        public virtual DbSet<Tbtipoquarto> Tbtipoquarto { get; set; }
         public virtual DbSet<Tbusuario> Tbusuario { get; set; }
+        public virtual DbSet<Tbusuariocartao> Tbusuariocartao { get; set; }
+        public virtual DbSet<Tbusuarioempresa> Tbusuarioempresa { get; set; }
         public virtual DbSet<Uf> Uf { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -37,6 +41,7 @@ namespace HSApi.EF
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
                 optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=HS;Trusted_Connection=True;");
+                //optionsBuilder.UseSqlServer("Data Source=SQL5032.site4now.net;Initial Catalog=DB_A3FE42_HS;User Id=DB_A3FE42_HS_admin;Password=Hs123!@#");
             }
         }
 
@@ -125,6 +130,39 @@ namespace HSApi.EF
                     .HasConstraintName("FK_LOGRADOUROS_BAIRROS");
             });
 
+            modelBuilder.Entity<Tbcartaocliente>(entity =>
+            {
+                entity.HasKey(e => e.Idcartao);
+
+                entity.ToTable("TBCARTAOCLIENTE");
+
+                entity.Property(e => e.Idcartao).HasColumnName("IDCARTAO");
+
+                entity.Property(e => e.Cvv)
+                    .IsRequired()
+                    .HasColumnName("CVV")
+                    .HasMaxLength(300)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Dataatualizacao).HasColumnName("DATAATUALIZACAO");
+
+                entity.Property(e => e.Datavencimento)
+                    .IsRequired()
+                    .HasColumnName("DATAVENCIMENTO")
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Idcliente).HasColumnName("IDCLIENTE");
+
+                entity.Property(e => e.Idusuarioatualizacao).HasColumnName("IDUSUARIOATUALIZACAO");
+
+                entity.Property(e => e.Numerocartao)
+                    .IsRequired()
+                    .HasColumnName("NUMEROCARTAO")
+                    .HasMaxLength(300)
+                    .IsUnicode(false);
+            });
+
             modelBuilder.Entity<Tbcliente>(entity =>
             {
                 entity.HasKey(e => e.Idcliente);
@@ -194,6 +232,11 @@ namespace HSApi.EF
 
                 entity.Property(e => e.Idempresa).HasColumnName("IDEMPRESA");
 
+                entity.Property(e => e.Celular)
+                    .HasColumnName("CELULAR")
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.Cep)
                     .IsRequired()
                     .HasColumnName("CEP")
@@ -215,6 +258,11 @@ namespace HSApi.EF
                 entity.Property(e => e.Datacadastro)
                     .HasColumnName("DATACADASTRO")
                     .HasColumnType("date");
+
+                entity.Property(e => e.Email)
+                    .HasColumnName("EMAIL")
+                    .HasMaxLength(300)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.Horacheckout)
                     .IsRequired()
@@ -244,6 +292,11 @@ namespace HSApi.EF
                     .IsRequired()
                     .HasColumnName("RAZAOSOCIAL")
                     .HasMaxLength(300)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Telefone)
+                    .HasColumnName("TELEFONE")
+                    .HasMaxLength(20)
                     .IsUnicode(false);
 
                 entity.HasOne(d => d.CepNavigation)
@@ -341,45 +394,26 @@ namespace HSApi.EF
                 entity.Property(e => e.Idquarto).HasColumnName("IDQUARTO");
 
                 entity.Property(e => e.Andar)
+                    .IsRequired()
                     .HasColumnName("ANDAR")
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Arcondicionado).HasColumnName("ARCONDICIONADO");
-
-                entity.Property(e => e.Banheiroprivativo).HasColumnName("BANHEIROPRIVATIVO");
-
-                entity.Property(e => e.Camacasal).HasColumnName("CAMACASAL");
-
-                entity.Property(e => e.Camasolteiro).HasColumnName("CAMASOLTEIRO");
-
-                entity.Property(e => e.Idempresa).HasColumnName("IDEMPRESA");
+                entity.Property(e => e.Idtipoquarto).HasColumnName("IDTIPOQUARTO");
 
                 entity.Property(e => e.Quarto)
+                    .IsRequired()
                     .HasColumnName("QUARTO")
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Status).HasColumnName("STATUS");
 
-                entity.Property(e => e.Totalpessoas).HasColumnName("TOTALPESSOAS");
-
-                entity.Property(e => e.Valor).HasColumnName("VALOR");
-
-                entity.Property(e => e.Varanda).HasColumnName("VARANDA");
-
-                entity.Property(e => e.Ventilador).HasColumnName("VENTILADOR");
-
-                entity.HasOne(d => d.IdempresaNavigation)
+                entity.HasOne(d => d.IdtipoquartoNavigation)
                     .WithMany(p => p.Tbquarto)
-                    .HasForeignKey(d => d.Idempresa)
+                    .HasForeignKey(d => d.Idtipoquarto)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_TBQUARTO_TBEMPRESA");
-
-                entity.HasOne(d => d.StatusNavigation)
-                    .WithMany(p => p.Tbquarto)
-                    .HasForeignKey(d => d.Status)
-                    .HasConstraintName("FK_TBQUARTO_TBSTATUS");
+                    .HasConstraintName("FK_TBQUARTO_TBTIPOQUARTO");
             });
 
             modelBuilder.Entity<Tbquartofoto>(entity =>
@@ -434,9 +468,9 @@ namespace HSApi.EF
                     .HasColumnName("DATASAIDA")
                     .HasColumnType("date");
 
-                entity.Property(e => e.Idcliente).HasColumnName("IDCLIENTE");
-
                 entity.Property(e => e.Idquarto).HasColumnName("IDQUARTO");
+
+                entity.Property(e => e.Idusuario).HasColumnName("IDUSUARIO");
 
                 entity.Property(e => e.Motivocancelamento)
                     .HasColumnName("MOTIVOCANCELAMENTO")
@@ -445,17 +479,17 @@ namespace HSApi.EF
 
                 entity.Property(e => e.Valor).HasColumnName("VALOR");
 
-                entity.HasOne(d => d.IdclienteNavigation)
-                    .WithMany(p => p.Tbreserva)
-                    .HasForeignKey(d => d.Idcliente)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_TBRESERVA_TBCLIENTE");
-
                 entity.HasOne(d => d.IdquartoNavigation)
                     .WithMany(p => p.Tbreserva)
                     .HasForeignKey(d => d.Idquarto)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_TBRESERVA_TBQUARTO");
+
+                entity.HasOne(d => d.IdusuarioNavigation)
+                    .WithMany(p => p.Tbreserva)
+                    .HasForeignKey(d => d.Idusuario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TBRESERVA_TBCLIENTE");
             });
 
             modelBuilder.Entity<Tbstatus>(entity =>
@@ -486,6 +520,51 @@ namespace HSApi.EF
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<Tbtipoquarto>(entity =>
+            {
+                entity.HasKey(e => e.Idtipoquarto);
+
+                entity.ToTable("TBTIPOQUARTO");
+
+                entity.Property(e => e.Idtipoquarto).HasColumnName("IDTIPOQUARTO");
+
+                entity.Property(e => e.Arcondicionado).HasColumnName("ARCONDICIONADO");
+
+                entity.Property(e => e.Banheira).HasColumnName("BANHEIRA");
+
+                entity.Property(e => e.Banheiroprivativo).HasColumnName("BANHEIROPRIVATIVO");
+
+                entity.Property(e => e.Camacasal).HasColumnName("CAMACASAL");
+
+                entity.Property(e => e.Camasolteiro).HasColumnName("CAMASOLTEIRO");
+
+                entity.Property(e => e.Idempresa).HasColumnName("IDEMPRESA");
+
+                entity.Property(e => e.Tipoquarto)
+                    .IsRequired()
+                    .HasColumnName("TIPOQUARTO")
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Totalpessoas).HasColumnName("TOTALPESSOAS");
+
+                entity.Property(e => e.Valor).HasColumnName("VALOR");
+
+                entity.Property(e => e.Varanda).HasColumnName("VARANDA");
+
+                entity.Property(e => e.Ventilador).HasColumnName("VENTILADOR");
+
+                entity.Property(e => e.Vistamar).HasColumnName("VISTAMAR");
+
+                entity.Property(e => e.Vistapordosol).HasColumnName("VISTAPORDOSOL");
+
+                entity.HasOne(d => d.IdempresaNavigation)
+                    .WithMany(p => p.Tbtipoquarto)
+                    .HasForeignKey(d => d.Idempresa)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TBTIPOQUARTO_TBEMPRESA");
+            });
+
             modelBuilder.Entity<Tbusuario>(entity =>
             {
                 entity.HasKey(e => e.Idusuario);
@@ -495,6 +574,7 @@ namespace HSApi.EF
                 entity.Property(e => e.Idusuario).HasColumnName("IDUSUARIO");
 
                 entity.Property(e => e.Cpf)
+                    .IsRequired()
                     .HasColumnName("CPF")
                     .HasMaxLength(11)
                     .IsUnicode(false);
@@ -504,13 +584,13 @@ namespace HSApi.EF
                     .HasColumnType("date");
 
                 entity.Property(e => e.Email)
+                    .IsRequired()
                     .HasColumnName("EMAIL")
                     .HasMaxLength(150)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Idempresa).HasColumnName("IDEMPRESA");
-
                 entity.Property(e => e.Loginusuario)
+                    .IsRequired()
                     .HasColumnName("LOGINUSUARIO")
                     .HasMaxLength(50)
                     .IsUnicode(false);
@@ -521,7 +601,81 @@ namespace HSApi.EF
                     .HasMaxLength(200)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Senha).HasColumnName("SENHA");
+                entity.Property(e => e.Senha)
+                    .IsRequired()
+                    .HasColumnName("SENHA");
+            });
+
+            modelBuilder.Entity<Tbusuariocartao>(entity =>
+            {
+                entity.HasKey(e => e.Idusuariocartao);
+
+                entity.ToTable("TBUSUARIOCARTAO");
+
+                entity.Property(e => e.Idusuariocartao).HasColumnName("IDUSUARIOCARTAO");
+
+                entity.Property(e => e.Cvv)
+                    .HasColumnName("CVV")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Datavencimento)
+                    .IsRequired()
+                    .HasColumnName("DATAVENCIMENTO")
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Idusuario).HasColumnName("IDUSUARIO");
+
+                entity.Property(e => e.Nomecartao)
+                    .HasColumnName("NOMECARTAO")
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Numerocartao)
+                    .IsRequired()
+                    .HasColumnName("NUMEROCARTAO")
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdusuarioNavigation)
+                    .WithMany(p => p.Tbusuariocartao)
+                    .HasForeignKey(d => d.Idusuario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TBUSUARIOCARTAO_TBUSUARIO");
+            });
+
+            modelBuilder.Entity<Tbusuarioempresa>(entity =>
+            {
+                entity.HasKey(e => e.Idusuarioempresa);
+
+                entity.ToTable("TBUSUARIOEMPRESA");
+
+                entity.Property(e => e.Idusuarioempresa).HasColumnName("IDUSUARIOEMPRESA");
+
+                entity.Property(e => e.Cpf)
+                    .IsRequired()
+                    .HasColumnName("CPF")
+                    .HasMaxLength(11)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Idempresa).HasColumnName("IDEMPRESA");
+
+                entity.Property(e => e.Login)
+                    .IsRequired()
+                    .HasColumnName("LOGIN")
+                    .HasMaxLength(300)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Nomeusuario)
+                    .IsRequired()
+                    .HasColumnName("NOMEUSUARIO")
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Senha)
+                    .IsRequired()
+                    .HasColumnName("SENHA");
             });
 
             modelBuilder.Entity<Uf>(entity =>

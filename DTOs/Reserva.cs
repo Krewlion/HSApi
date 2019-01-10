@@ -25,7 +25,7 @@ namespace HSApi.DTOs
         public int idtipopagamento { get; set; }
         public string chavepagamento { get; set; }
         public string valorcheckout { get; set; }
-
+        public string idusuariocripto { get; set; }
         public string motivocancelamento { get; set; }
         public List<DTOs.produtosReserva> produtos { get; set; }
     }

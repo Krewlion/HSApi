@@ -27,5 +27,11 @@ namespace HSApi.DTOs
         public int qtdhospedes { get; set; }
         public bool banheiroprivativo { get; set; }
         public bool ventilador { get; set; }
+        public int idempresa { get; set; }
+        public bool vistamar { get; set; }
+        public bool vistapordosol { get; set; }
+        public bool banheira { get; set; }
+        public int idtipoquarto { get; set; }
+        public string tipoquarto { get; set; }
     }
 }

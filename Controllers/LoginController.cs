@@ -34,28 +34,7 @@ namespace HSApi.Controllers
             }
             else
             {
-
-                //var claims = new[]
-                //{
-                //    new Claim(ClaimTypes.Name, usuario.loginusuario)
-                //};
-
-                //var key = new SymmetricSecurityKey(
-                //    Encoding.UTF8.GetBytes(_configuration["SecurityKey"]));
-
-                //var creds = new SigningCredentials(key, SecurityAlgorithms.Aes128CbcHmacSha256);
-
-                //var token = new JwtSecurityToken(
-                // issuer: "Metanoia",
-                // audience: "Metanoia",
-                // claims: claims,
-                // expires: DateTime.Now.AddMinutes(30),
-                // signingCredentials: creds
-                //);
-
-                //var tokenRetorno = new JwtSecurityTokenHandler().WriteToken(token);
-
-                return Ok(new { cpf = usu.Cpf, email = usu.Email, idusuario = usu.Idusuario, nome = usu.Nomeusuario, loginusuario = usu.Loginusuario });
+                return Ok(usu);
             }
 
         }

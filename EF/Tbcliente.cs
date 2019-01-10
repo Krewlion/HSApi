@@ -5,11 +5,6 @@ namespace HSApi.EF
 {
     public partial class Tbcliente
     {
-        public Tbcliente()
-        {
-            Tbreserva = new HashSet<Tbreserva>();
-        }
-
         public int Idcliente { get; set; }
         public string Nomecliente { get; set; }
         public string Cpf { get; set; }
@@ -22,7 +17,5 @@ namespace HSApi.EF
         public string Numero { get; set; }
         public string Complemento { get; set; }
         public byte[] Senha { get; set; }
-
-        public ICollection<Tbreserva> Tbreserva { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace HSApi.Negocio
 {
     public class Login : AbstractNegocio
     {
-        public EF.Tbusuario logar(DTOs.Usuario entrar)
+        public DTOs.Usuario logar(DTOs.Usuario entrar)
         {
             try
             {
@@ -32,7 +32,11 @@ namespace HSApi.Negocio
                     }
                     else
                     {
-                        return resultado;
+                        return new DTOs.Usuario()
+                        {
+                            idusuariocripto = this.Encrypt(resultado.Idusuario.ToString()),
+                            nomeusuario = resultado.Loginusuario
+                        };
                     }
                 }
 

@@ -19,5 +19,6 @@ namespace HSApi.DTOs
         public string grupo { get; set; }
         public int idusuarioatualizacao { get; set; }
         public int idgrupo { get; set; }
+
     }
 }

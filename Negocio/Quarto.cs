@@ -1,4 +1,5 @@
 ﻿using HSApi.EF;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,11 +18,7 @@ namespace HSApi.Negocio
                     Tbquarto quartoAdd = new Tbquarto();
                     quartoAdd.Quarto = quarto.quarto.ToUpper();
                     quartoAdd.Status = 1;
-                    quartoAdd.Varanda = quarto.varanda;
-                    quartoAdd.Camasolteiro = quarto.camasolteiro;
-                    quartoAdd.Camacasal = quarto.camacasal;
-                    quartoAdd.Arcondicionado = quarto.arcondicionado;
-                    quartoAdd.Valor = decimal.Parse(quarto.valor);
+                    quartoAdd.Idtipoquarto = quarto.idtipoquarto;
                     hs.Tbquarto.Add(quartoAdd);
                     hs.SaveChanges();
                 }
@@ -52,14 +49,27 @@ namespace HSApi.Negocio
             }
         }
 
-        public Tbquarto Buscar(int idQuarto)
+        public DTOs.Quarto Buscar(int idQuarto)
         {
             try
             {
                 using (HSContext hs = new HSContext())
                 {
 
-                    return hs.Tbquarto.First(x => x.Idquarto == idQuarto);
+                    return hs.Tbquarto.Include(x => x.IdtipoquartoNavigation).Where(x => x.Idquarto == idQuarto)
+                        .Select(x => new DTOs.Quarto()
+                        {
+                            andar = x.Andar,
+                            varanda = x.IdtipoquartoNavigation.Varanda,
+                            quarto = x.Quarto,
+                            idquarto = x.Idquarto,
+                            arcondicionado = x.IdtipoquartoNavigation.Arcondicionado,
+                            camacasal =x.IdtipoquartoNavigation.Camacasal,
+                            camasolteiro = x.IdtipoquartoNavigation.Camasolteiro,
+                            status = x.Status.Value,
+                            valor = x.IdtipoquartoNavigation.Valor.ToString(),
+
+                        }).First();
                 }
             }
             catch (Exception ex)
@@ -95,11 +105,7 @@ namespace HSApi.Negocio
                 {
                     var quartoAlterar = hs.Tbquarto.First(x => x.Idquarto == quarto.idquarto);
                     quartoAlterar.Quarto = quarto.quarto.ToUpper();
-                    quartoAlterar.Valor = Decimal.Parse(quarto.valor);
-                    quartoAlterar.Arcondicionado = quarto.arcondicionado;
-                    quartoAlterar.Camacasal = quarto.camacasal;
-                    quartoAlterar.Camasolteiro = quarto.camasolteiro;
-                    quartoAlterar.Varanda = quarto.varanda;
+                    quartoAlterar.Idtipoquarto = quarto.idtipoquarto;
                     hs.SaveChanges();
                 }
             }

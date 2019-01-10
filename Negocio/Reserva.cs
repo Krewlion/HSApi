@@ -35,7 +35,7 @@ namespace HSApi.Negocio
 
                     var retorno =
                         (
-                            from quarto in hs.Tbquarto.Include(x => x.IdempresaNavigation)
+                            from quarto in hs.Tbquarto.Include(x => x.IdtipoquartoNavigation).ThenInclude(x=>x.IdempresaNavigation)
                             join reserva in hs.Tbreserva on quarto.Idquarto equals reserva.Idquarto into LeftJoin
                             from left in LeftJoin.DefaultIfEmpty()
                             where
@@ -46,33 +46,35 @@ namespace HSApi.Negocio
                             )
                             select new DTOs.Quarto()
                             {
-                                hotel = quarto.IdempresaNavigation.Nomeempresa,
+                                hotel = quarto.IdtipoquartoNavigation.IdempresaNavigation.Nomeempresa,
                                 nomeempresa =
-                                quarto.IdempresaNavigation.Nomeempresa + " - " + hs.Logradouros
+                                quarto.IdtipoquartoNavigation.IdempresaNavigation.Nomeempresa + " - " + hs.Logradouros
                                 .Include(x => x.CdBairroNavigation)
                                 .ThenInclude(x => x.CdCidadeNavigation)
-                                .First(x => x.NoLogradouroCep == quarto.IdempresaNavigation.Cep).CdBairroNavigation.DsBairroNome.ToUpper(),
+                                .First(x => x.NoLogradouroCep == quarto.IdtipoquartoNavigation.IdempresaNavigation.Cep).CdBairroNavigation.DsBairroNome.ToUpper(),
                                 idquarto = quarto.Idquarto,
-                                valor = quarto.Valor.Value.ToString(),
+                                valor = quarto.IdtipoquartoNavigation.Valor.ToString(),
                                 andar = quarto.Andar,
                                 quarto = quarto.Quarto,
-                                varanda = quarto.Varanda.Value,
-                                arcondicionado = quarto.Arcondicionado.Value,
-                                camacasal = quarto.Camacasal.Value,
-                                camasolteiro = quarto.Camasolteiro.Value,
-                                cep = quarto.IdempresaNavigation.Cep,
+                                varanda = quarto.IdtipoquartoNavigation.Varanda,
+                                arcondicionado = quarto.IdtipoquartoNavigation.Arcondicionado,
+                                camacasal = quarto.IdtipoquartoNavigation.Camacasal,
+                                camasolteiro = quarto.IdtipoquartoNavigation.Camasolteiro,
+                                cep = quarto.IdtipoquartoNavigation.IdempresaNavigation.Cep,
                                 status = quarto.Status.Value,
-                                ventilador = quarto.Ventilador,
-                                banheiroprivativo = quarto.Banheiroprivativo,
+                                ventilador = quarto.IdtipoquartoNavigation.Ventilador,
+                                idempresa = quarto.IdtipoquartoNavigation.Idempresa,
+                                banheiroprivativo = quarto.IdtipoquartoNavigation.Banheiroprivativo,
+                                tipoquarto = quarto.IdtipoquartoNavigation.Tipoquarto,
                                 endereco = hs.Logradouros
                                 .Include(x => x.CdBairroNavigation)
                                 .ThenInclude(x => x.CdCidadeNavigation)
-                                .First(x => x.NoLogradouroCep == quarto.IdempresaNavigation.Cep).DsLogradouroNome + " n° " + quarto.IdempresaNavigation.Numero + " - Complemento " + quarto.IdempresaNavigation.Complemente,
+                                .First(x => x.NoLogradouroCep == quarto.IdtipoquartoNavigation.IdempresaNavigation.Cep).DsLogradouroNome + " n° " + quarto.IdtipoquartoNavigation.IdempresaNavigation.Numero + " - Complemento " + quarto.IdtipoquartoNavigation.IdempresaNavigation.Complemente,
                                 imagens = hs.Tbquartofoto.Where(x=>x.Idquarto == quarto.Idquarto).Select(x=>x.Imagem).ToList(),
                                 foto = hs.Tbquartofoto.FirstOrDefault(x => x.Idquarto == quarto.Idquarto) == null ? "" : hs.Tbquartofoto.First(x => x.Idquarto == quarto.Idquarto).Imagem,
-                                checkin = quarto.IdempresaNavigation.Horachekin,
-                                checkout = quarto.IdempresaNavigation.Horacheckout,
-                                qtdhospedes = quarto.Totalpessoas
+                                checkin = quarto.IdtipoquartoNavigation.IdempresaNavigation.Horachekin,
+                                checkout = quarto.IdtipoquartoNavigation.IdempresaNavigation.Horacheckout,
+                                qtdhospedes = quarto.IdtipoquartoNavigation.Totalpessoas
                             }
                         )
                     .Distinct().Where(x=>ceps.Contains(x.cep)).ToList();
@@ -101,13 +103,14 @@ namespace HSApi.Negocio
         {
             try
             {
+                var idcliente = this.Decrypt(reserva.idusuariocripto);
                 using (HSContext hs = new HSContext())
                 {
                     Tbreserva reservaAdd = new Tbreserva();
 
                     reservaAdd.Idquarto = reserva.idquarto;
-                    reservaAdd.Idcliente = reserva.idcliente;
-                    reservaAdd.Valor = Decimal.Parse(reserva.valor.Replace(",", "."));
+                    reservaAdd.Idusuario = Int32.Parse(idcliente);
+                    reservaAdd.Valor = Decimal.Parse(reserva.valor.Replace(".", ","));
                     reservaAdd.Checkout = false;
                     reservaAdd.Dataentrada = DateTime.Parse(reserva.dataentrada);
                     reservaAdd.Datasaida = DateTime.Parse(reserva.datasaida);
@@ -135,18 +138,18 @@ namespace HSApi.Negocio
                         (
                             from reserva in hs.Tbreserva
                             join quarto in hs.Tbquarto on reserva.Idquarto equals quarto.Idquarto
-                            join cliente in hs.Tbcliente on reserva.Idcliente equals cliente.Idcliente
+                            join usuario in hs.Tbusuario on reserva.Idusuario equals usuario.Idusuario
                             where !reserva.Datafinalizacao.HasValue
                             orderby reserva.Dataentrada
                             select new DTOs.Reserva()
                             {
                                 idreserva = reserva.Idreserva,
-                                nomecliente = cliente.Nomecliente,
+                                nomecliente = usuario.Nomeusuario,
                                 quarto = quarto.Quarto,
                                 valor = reserva.Valor.ToString(),
                                 dataentrada = reserva.Dataentrada.Value.ToString("dd/MM/yyyy"),
                                 datasaida = reserva.Datasaida.Value.ToString("dd/MM/yyyy"),
-                                cpf = cliente.Cpf,
+                                cpf = usuario.Cpf,
                                 checkout = reserva.Checkout.Value
                             }
 
@@ -191,14 +194,14 @@ namespace HSApi.Negocio
                      (
                          from reserva in hs.Tbreserva
                          join quarto in hs.Tbquarto on reserva.Idquarto equals quarto.Idquarto
-                         join cliente in hs.Tbcliente on reserva.Idcliente equals cliente.Idcliente
+                         join usuario in hs.Tbusuario on reserva.Idusuario equals usuario.Idusuario
                          where reserva.Idreserva == idreserva
                          select new DTOs.Reserva()
                          {
                              idreserva = reserva.Idreserva,
                              checkout = reserva.Checkout.Value,
-                             cpf = cliente.Cpf,
-                             nomecliente = cliente.Nomecliente,
+                             cpf = usuario.Cpf,
+                             nomecliente = usuario.Nomeusuario,
                              quarto = quarto.Quarto,
                              valor = reserva.Valor.ToString(),
                              dataentrada = reserva.Dataentrada.Value.ToString("dd/MM/yyyy"),
@@ -225,15 +228,15 @@ namespace HSApi.Negocio
                      (
                          from reserva in hs.Tbreserva
                          join quarto in hs.Tbquarto on reserva.Idquarto equals quarto.Idquarto
-                         join cliente in hs.Tbcliente on reserva.Idcliente equals cliente.Idcliente
+                         join usuario in hs.Tbusuario on reserva.Idusuario equals usuario.Idusuario
                          where reserva.Idreserva == idreserva
                          select new DTOs.Reserva()
                          {
                              idreserva = reserva.Idreserva,
                              checkout = reserva.Checkout.Value,
                              valorcheckout = hs.Tbprodutoreserva.Where(x => x.Idreserva == idreserva).Sum(x => x.Valor * x.Quantidade).ToString(),
-                             cpf = cliente.Cpf,
-                             nomecliente = cliente.Nomecliente,
+                             cpf = usuario.Cpf,
+                             nomecliente = usuario.Nomeusuario,
                              quarto = quarto.Quarto,
                              valor = reserva.Valor.ToString(),
                              dataentrada = reserva.Dataentrada.Value.ToString("dd/MM/yyyy"),

@@ -34,14 +34,14 @@ namespace HSApi.Controllers
             return Ok(
                 new
                 {
-                    Quarto = retorno.Quarto,
-                    idQuarto = retorno.Idquarto,
-                    Varanda = retorno.Varanda,
-                    Arcondicionado = retorno.Arcondicionado,
-                    Camacasal = retorno.Camacasal,
-                    Camasolteiro = retorno.Camasolteiro,
-                    Status = retorno.Status,
-                    Valor = retorno.Valor,
+                    Quarto = retorno.quarto,
+                    idQuarto = retorno.idquarto,
+                    Varanda = retorno.varanda,
+                    Arcondicionado = retorno.arcondicionado,
+                    Camacasal = retorno.camacasal,
+                    Camasolteiro = retorno.camasolteiro,
+                    Status = retorno.status,
+                    Valor = retorno.valor,
                 }
                 );
         }

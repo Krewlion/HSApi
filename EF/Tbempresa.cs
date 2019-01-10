@@ -7,7 +7,7 @@ namespace HSApi.EF
     {
         public Tbempresa()
         {
-            Tbquarto = new HashSet<Tbquarto>();
+            Tbtipoquarto = new HashSet<Tbtipoquarto>();
         }
 
         public int Idempresa { get; set; }
@@ -20,8 +20,11 @@ namespace HSApi.EF
         public DateTime Datacadastro { get; set; }
         public string Horachekin { get; set; }
         public string Horacheckout { get; set; }
+        public string Telefone { get; set; }
+        public string Email { get; set; }
+        public string Celular { get; set; }
 
         public Logradouros CepNavigation { get; set; }
-        public ICollection<Tbquarto> Tbquarto { get; set; }
+        public ICollection<Tbtipoquarto> Tbtipoquarto { get; set; }
     }
 }

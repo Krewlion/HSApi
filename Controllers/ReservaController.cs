@@ -34,7 +34,17 @@ namespace HSApi.Controllers
         [HttpPost]
         public IActionResult IncluirReserva([FromBody] DTOs.Reserva reserva)
         {
-            return Ok(reservaNegocio.IncluirReserva(reserva));
+
+            var retorno = reservaNegocio.IncluirReserva(reserva);
+
+            if (reservaNegocio.erros.Count > 0)
+            {
+                return Ok(new { erros = reservaNegocio.erros });
+            }
+            else
+            {
+                return Ok(retorno);
+            }
         }
 
         [HttpGet]
