@@ -15,10 +15,9 @@ namespace HSApi.DTOs
         public string cpf { get; set; }
         public string datanascimento { get; set; }
         public string senha { get; set; }
-        public bool manter { get; set; }
-        public string grupo { get; set; }
         public int idusuarioatualizacao { get; set; }
-        public int idgrupo { get; set; }
+        public List<DTOs.CartaoUsuario> cartoes { get; set; }
+        public List<DTOs.Reserva> reservas { get; set; }
 
     }
 }

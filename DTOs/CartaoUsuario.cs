@@ -13,5 +13,6 @@ namespace HSApi.DTOs
         public string datavencimento { get; set; }
         public string cvv { get; set; }
         public string nomecartao { get; set; }
+        public string idusuariocripto { get; set; }
     }
 }

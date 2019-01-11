@@ -11,6 +11,6 @@ namespace HSApi.EF
         public string Cvv { get; set; }
         public string Datavencimento { get; set; }
         public int Idusuarioatualizacao { get; set; }
-        public int Dataatualizacao { get; set; }
+        public DateTime Dataatualizacao { get; set; }
     }
 }

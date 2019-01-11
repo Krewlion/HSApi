@@ -32,10 +32,40 @@ namespace HSApi.Controllers
             }
         }
 
+        [HttpPost]
+        public IActionResult IncluirCartao([FromBody] DTOs.CartaoUsuario cartao)
+        {
+        var retorno = UsuarioNegocio.IncluirCartaoUsuario(cartao);
+
+            if (UsuarioNegocio.erros.Count > 0)
+            {
+                return Ok(new { erros = UsuarioNegocio.erros });
+            }
+            else
+            {
+                return Ok(retorno);
+            }
+        }
+
         [HttpGet]
         public IActionResult ListarCartoesUsuario(string idusuario)
         {
             var retorno = UsuarioNegocio.ListarCartoesUsuario(idusuario);
+
+            if (UsuarioNegocio.erros.Count > 0)
+            {
+                return Ok(new { erros = UsuarioNegocio.erros });
+            }
+            else
+            {
+                return Ok(retorno);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult PedarDadosUsuario(string idusuario)
+        {
+            var retorno = UsuarioNegocio.PegarDadosUsuario(idusuario);
 
             if (UsuarioNegocio.erros.Count > 0)
             {

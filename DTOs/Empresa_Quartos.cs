@@ -10,5 +10,8 @@ namespace HSApi.DTOs
         public int idempresa { get; set; }
         public List<TipoQuarto> tipoquartos { get; set; }
         public string nomeempresa { get; set; }
+        public decimal maisbarato { get; set; }
+        public string checkin { get; set; }
+        public string checkout { get; set; }
     }
 }

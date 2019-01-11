@@ -28,6 +28,8 @@ namespace HSApi.DTOs
         public string idusuariocripto { get; set; }
         public string motivocancelamento { get; set; }
         public List<DTOs.produtosReserva> produtos { get; set; }
+        public string hotel { get; set; }
+        public string tipoquarto { get; set; }
     }
 
 }
